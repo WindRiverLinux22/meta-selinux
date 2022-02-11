@@ -1,0 +1,66 @@
+From 5284ccfff963198b8b221e64a809650482608442 Mon Sep 17 00:00:00 2001
+From: Yi Zhao <yi.zhao@windriver.com>
+Date: Fri, 11 Feb 2022 10:45:40 +0800
+Subject: [PATCH] policy/modules/system/init: allow init_t to watch reads on
+ unallocated ttys
+
+Fixes:
+avc:  denied  { watch_reads } for  pid=269 comm="(agetty)"
+path="/dev/tty1" dev="devtmpfs" ino=21
+scontext=system_u:system_r:init_t:s0-s15:c0.c1023
+tcontext=system_u:object_r:tty_device_t:s0 tclass=chr_file permissive=0
+
+Upstream-Status: Pending
+
+Signed-off-by: Yi Zhao <yi.zhao@windriver.com>
+---
+ policy/modules/kernel/terminal.if | 20 ++++++++++++++++++++
+ policy/modules/system/init.te     |  1 +
+ 2 files changed, 21 insertions(+)
+
+diff --git a/policy/modules/kernel/terminal.if b/policy/modules/kernel/terminal.if
+index e8c0735eb..e74ca4470 100644
+--- a/policy/modules/kernel/terminal.if
++++ b/policy/modules/kernel/terminal.if
+@@ -1287,6 +1287,26 @@ interface(`term_dontaudit_use_unallocated_ttys',`
+ 	dontaudit $1 tty_device_t:chr_file rw_chr_file_perms;
+ ')
+ 
++########################################
++## <summary>
++##  Watch reads on unallocated ttys.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++## <rolecap/>
++#
++interface(`term_watch_reads_unallocated_ttys',`
++	gen_require(`
++		type tty_device_t;
++	')
++
++	dev_list_all_dev_nodes($1)
++	allow $1 tty_device_t:chr_file watch_reads;
++')
++
+ ########################################
+ ## <summary>
+ ##	Get the attributes of all tty device nodes.
+diff --git a/policy/modules/system/init.te b/policy/modules/system/init.te
+index 932d1f7b3..0821be09f 100644
+--- a/policy/modules/system/init.te
++++ b/policy/modules/system/init.te
+@@ -475,6 +475,7 @@ ifdef(`init_systemd',`
+ 	storage_getattr_removable_dev(init_t)
+ 
+ 	term_relabel_pty_dirs(init_t)
++	term_watch_reads_unallocated_ttys(init_t)
+ 
+ 	auth_manage_var_auth(init_t)
+ 	auth_relabel_login_records(init_t)
+-- 
+2.17.1
+
