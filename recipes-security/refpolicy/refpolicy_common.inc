@@ -85,6 +85,8 @@ SRC_URI += " \
         file://0067-systemd-add-file-contexts-for-systemd-network-genera.patch \
         file://0068-systemd-udev-allow-udev-to-read-systemd-networkd-run.patch \
         file://0069-fc-fstools-apply-policy-to-findfs-alternative.patch \
+        file://0070-locallogin-Use-init-file-descriptors.patch \
+        file://0071-policy-modules-roles-sysadm-allow-sysadm-to-use-init.patch \
         "
 
 S = "${WORKDIR}/refpolicy"

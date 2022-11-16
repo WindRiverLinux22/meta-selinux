@@ -1,0 +1,33 @@
+From 8b3b2b5538de28299fef4ad7b6b96ef3d1a2bff2 Mon Sep 17 00:00:00 2001
+From: Chris PeBenito <Christopher.PeBenito@microsoft.com>
+Date: Mon, 2 May 2022 15:20:36 +0000
+Subject: [PATCH] locallogin: Use init file descriptors.
+
+Without this, some systems have slow or broken console login.
+
+Signed-off-by: Chris PeBenito <Christopher.PeBenito@microsoft.com>
+
+Upstream-Status: Backport
+[https://github.com/SELinuxProject/refpolicy/commit/ca0d6b74b5b61dd7786e6dd3228b398a91f3353f]
+
+Signed-off-by: Yi Zhao <yi.zhao@windriver.com>
+---
+ policy/modules/system/locallogin.te | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/policy/modules/system/locallogin.te b/policy/modules/system/locallogin.te
+index ee80cdfe7..96a60c036 100644
+--- a/policy/modules/system/locallogin.te
++++ b/policy/modules/system/locallogin.te
+@@ -143,6 +143,8 @@ ifdef(`init_systemd',`
+ 	auth_manage_faillog(local_login_t)
+ 
+ 	init_dbus_chat(local_login_t)
++	init_use_fds(local_login_t)
++
+ 	systemd_connect_machined(local_login_t)
+ 	systemd_dbus_chat_logind(local_login_t)
+ 	systemd_use_logind_fds(local_login_t)
+-- 
+2.32.0
+
